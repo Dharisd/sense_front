@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate
 } from "react-router-dom";
 import Dashboard from './pages/dashboard';
 import RequestForm from "./pages/request_form";
@@ -13,6 +14,17 @@ import HomePage from "./pages/homepage";
 import Login from './pages/login';
 import Navbar from './components/nav';
 import Gallery from './pages/gallery';
+
+
+
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    // user is not authenticated
+    return <Navigate to="/login" />;
+  }
+  return children;
+};
 
 const router = createBrowserRouter([
   {
@@ -35,7 +47,11 @@ const router = createBrowserRouter([
   },
   {
     path: "dash",
-    element: <Dashboard />,
+    element:
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    
 
   },
 ]);

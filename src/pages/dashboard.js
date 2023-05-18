@@ -17,7 +17,8 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/login'); // Redirect to login page if token is missing
+      //navigate('/login'); // Redirect to login page if token is missing
+      console.log("error")
     } else {
       fetchRegistrationRequests(token);
     }
