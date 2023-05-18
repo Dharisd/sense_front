@@ -68,11 +68,7 @@ const Dashboard = () => {
   };
 
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+
 
   const handleRejectionReasonChange = (id, value) => {
     setRejectionReasons((prevReasons) => ({
@@ -141,6 +137,30 @@ const Dashboard = () => {
   };
 
 
+  const handleDownload = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://127.0.0.1:3000/export',{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+  
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'registration_requests.csv';
+      link.click();
+  
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      // Handle error
+    }
+  };
+
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString();
   };
@@ -154,105 +174,119 @@ const Dashboard = () => {
   return (
     <div>
       <div className='mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8'>
+
         {registrationRequests.length === 0 ? (
           <p>No registration requests found.</p>
         ) : (
-          <div className='border border-gray-200'>
-            <div className=" overflow-x-auto">
-              <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                <thead className="ltr:text-left rtl:text-right">
-                  <tr>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Name
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Date of Birth
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Email
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Phone number
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Faculty
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Accepted
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Slip
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Action
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                      Rejection Reason
-                    </th>
+          <div className=''>
+            <div className='mb-4 '>
+            <a
+              onClick={handleDownload}
+              class="inline-block  rounded border border-teal-600 bg-teal-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-teal-600 focus:outline-none focus:ring active:text-teal-500"
+              href="localhost:3000/export"
+            >
+              Export
+            </a>
+            </div>
 
-                  </tr>
-                </thead>
+            <div className='border border-gray-200'>
 
-                <tbody className="divide-y divide-gray-200">
-                  {registrationRequests.map((request) => (
+              <div className=" overflow-x-auto">
+                <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                  <thead className="ltr:text-left rtl:text-right">
                     <tr>
-                      <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                        {request.name}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">{formatDate(request.dob)}</td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.email}</td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.phone_number}</td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.faculty}</td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.accepted ? 'Yes' : 'No'} </td>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Name
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Date of Birth
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Email
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Phone number
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Faculty
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Accepted
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Slip
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Action
+                      </th>
+                      <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                        Rejection Reason
+                      </th>
 
-
-
-
-                      <td className="whitespace-nowrap px-4 py-2">
-                        <a
-                          onClick={() => handleViewImage(request.payment_slip)}
-                          className="inline-block rounded bg-teal-600 px-4 py-2 text-xs font-medium text-white hover:bg-teal-700"
-                        >
-                          View
-                          
-                        </a>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2">
-                        {!request.accepted && !request.rejected_reason && (
-                          <div className='flex flex-col'>
-                            {/* Accept button */}
-
-
-
-                            <a
-                              onClick={() => acceptRequest(request.id)} className="inline-block rounded border border-green-600 px-8 py-3 text-sm font-medium text-green-600 hover:bg-green-600 hover:text-white focus:outline-none focus:ring active:bg-green-500"
-
-                            >
-                              Accept
-                            </a>
-
-
-
-
-                            <a
-                              onClick={() => rejectRequest(request.id)} className="inline-block rounded border border-red-600 px-8 py-3 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:outline-none focus:ring active:bg-red-500"
-
-                            >
-                              Reject
-                            </a>
-
-
-                          </div>
-                        )}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.rejected_reason} </td>
                     </tr>
-                  ))}
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-200">
+                    {registrationRequests.map((request) => (
+                      <tr>
+                        <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                          {request.name}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">{formatDate(request.dob)}</td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.email}</td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.phone_number}</td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.faculty}</td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.accepted ? 'Yes' : 'No'} </td>
 
 
-                </tbody>
-              </table>
 
+
+                        <td className="whitespace-nowrap px-4 py-2">
+                          <a
+                            onClick={() => handleViewImage(request.payment_slip)}
+                            className="inline-block rounded bg-teal-600 px-4 py-2 text-xs font-medium text-white hover:bg-teal-700"
+                          >
+                            View
+
+                          </a>
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2">
+                          {!request.accepted && !request.rejected_reason && (
+                            <div className='flex flex-col'>
+                              {/* Accept button */}
+
+
+
+                              <a
+                                onClick={() => acceptRequest(request.id)} className="inline-block rounded border border-green-600 px-8 py-3 text-sm font-medium text-green-600 hover:bg-green-600 hover:text-white focus:outline-none focus:ring active:bg-green-500"
+
+                              >
+                                Accept
+                              </a>
+
+
+
+
+                              <a
+                                onClick={() => rejectRequest(request.id)} className="inline-block rounded border border-red-600 px-8 py-3 text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:outline-none focus:ring active:bg-red-500"
+
+                              >
+                                Reject
+                              </a>
+
+
+                            </div>
+                          )}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">{request.rejected_reason} </td>
+                      </tr>
+                    ))}
+
+
+                  </tbody>
+                </table>
+
+              </div>
             </div>
           </div>
         )}
@@ -305,8 +339,8 @@ const Dashboard = () => {
         )}
 
 
-        
-        </div>
+
+      </div>
     </div>
   );
 };
